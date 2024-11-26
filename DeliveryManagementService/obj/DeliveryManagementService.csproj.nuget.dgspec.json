@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\moham\\source\\repos\\Exam\\DeliveryManagementService\\DeliveryManagementService\\DeliveryManagementService.csproj": {}
+    "C:\\Users\\moham\\source\\repos\\Exam\\DeliveryManagementMicroservice\\DeliveryManagementService\\DeliveryManagementService.csproj": {}
   },
   "projects": {
-    "C:\\Users\\moham\\source\\repos\\Exam\\DeliveryManagementService\\DeliveryManagementService\\DeliveryManagementService.csproj": {
+    "C:\\Users\\moham\\source\\repos\\Exam\\DeliveryManagementMicroservice\\DeliveryManagementService\\DeliveryManagementService.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\moham\\source\\repos\\Exam\\DeliveryManagementService\\DeliveryManagementService\\DeliveryManagementService.csproj",
+        "projectUniqueName": "C:\\Users\\moham\\source\\repos\\Exam\\DeliveryManagementMicroservice\\DeliveryManagementService\\DeliveryManagementService.csproj",
         "projectName": "DeliveryManagementService",
-        "projectPath": "C:\\Users\\moham\\source\\repos\\Exam\\DeliveryManagementService\\DeliveryManagementService\\DeliveryManagementService.csproj",
+        "projectPath": "C:\\Users\\moham\\source\\repos\\Exam\\DeliveryManagementMicroservice\\DeliveryManagementService\\DeliveryManagementService.csproj",
         "packagesPath": "C:\\Users\\moham\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\moham\\source\\repos\\Exam\\DeliveryManagementService\\DeliveryManagementService\\obj\\",
+        "outputPath": "C:\\Users\\moham\\source\\repos\\Exam\\DeliveryManagementMicroservice\\DeliveryManagementService\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -50,6 +50,18 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "Google.Apis.Auth": {
+              "target": "Package",
+              "version": "[1.68.0, )"
+            },
+            "Google.Cloud.PubSub.V1": {
+              "target": "Package",
+              "version": "[3.19.0, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.6.2, )"
