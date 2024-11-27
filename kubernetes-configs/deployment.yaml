@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: delivery-management-service # Name of the deployment
+  labels:
+    app: delivery-management-service
+spec:
+  replicas: 2 # Number of pods to deploy
+  selector:
+    matchLabels:
+      app: delivery-management-service
+  template:
+    metadata:
+      labels:
+        app: delivery-management-service
+    spec:
+      containers:
+        - name: delivery-management-service
+          image: gcr.io/mtogo-439509/delivery-management-service:latest # Update with your image
+          ports:
+            - containerPort: 8080 # The container's exposed port
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production # Example environment variable

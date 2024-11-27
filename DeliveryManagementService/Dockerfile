@@ -1,16 +1,19 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0@sha256:35792ea4ad1db051981f62b313f1be3b46b1f45cadbaa3c288cd0d3056eefb83 AS build-env
+# Stage 1: Build the application
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
 WORKDIR /App
 
-# Copy everything
-COPY . ./
-# Restore as distinct layers
-RUN dotnet restore
-# Build and publish a release
-RUN dotnet publish -c Release -o out
+# Copy only the project file to cache dependencies
+COPY DeliveryManagementService.csproj ./
+RUN dotnet restore DeliveryManagementService.csproj
 
-# Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:8.0@sha256:6c4df091e4e531bb93bdbfe7e7f0998e7ced344f54426b7e874116a3dc3233ff
+# Copy all the application files
+COPY . ./
+RUN dotnet publish DeliveryManagementService.csproj -c Release -o /App/out
+
+# Stage 2: Create the runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /App
 COPY --from=build-env /App/out .
 
-ENTRYPOINT ["dotnet", "OrderManagementService.dll"]
+# Specify the entry point to run the application
+ENTRYPOINT ["dotnet", "DeliveryManagementService.dll"]

@@ -40,8 +40,7 @@
               "RelativeToolTip": "..\\DeliveryManagementServiceTest\\IntergrationTest\\DeliveryIntergrationTest.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-26T14:59:56.558Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-26T14:59:56.558Z"
             },
             {
               "$type": "Document",
@@ -66,8 +65,7 @@
               "RelativeToolTip": "Infrastructure\\Publishers\\GooglePubSubMessageBus.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAjAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-26T14:42:29.315Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-26T14:42:29.315Z"
             }
           ]
         }
