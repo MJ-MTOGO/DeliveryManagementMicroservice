@@ -1,0 +1,64 @@
+name: CI/CD Pipeline for DeliveryService
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test-build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout Code
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Step 2: Authenticate with GCP
+      - name: Authenticate with GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      # Step 3: Add Google Cloud SDK Repository and Install Plugin
+      - name: Install gke-gcloud-auth-plugin
+        run: |
+          echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee /etc/apt/sources.list.d/google-cloud-sdk.list
+          curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+          sudo apt-get update
+          sudo apt-get install -y google-cloud-sdk-gke-gcloud-auth-plugin
+
+      # Step 4: Configure kubectl
+      - name: Configure kubectl
+        run: gcloud container clusters get-credentials cluster-1 --region europe-north1-a
+
+      # Step 5: Run Unit Tests
+      - name: Run Unit Tests
+        working-directory: ./DeliveryManagementServiceTest
+        run: |
+          dotnet restore DeliveryManagementServiceTest.csproj
+          dotnet test DeliveryManagementServiceTest.csproj --no-build --verbosity normal --logger:"trx;LogFileName=TestResults.trx"
+
+      # Step 6: Upload Test Results as Artifact
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: ./DeliveryManagementServiceTest/TestResults.trx
+
+      # Step 7: Configure Docker to use gcloud as a credential helper
+      - name: Configure Docker
+        run: gcloud auth configure-docker
+
+      # Step 8: Build and Push Docker Image
+      - name: Build and Push Docker Image
+        working-directory: ./DeliveryManagementService
+        run: |
+          docker build -t gcr.io/mtogov1/delivery-management-service:latest -f Dockerfile .
+          docker push gcr.io/mtogov1/delivery-management-service:latest
+
+      # Step 9: Deploy to Kubernetes
+      - name: Deploy to Kubernetes
+        working-directory: ./kubernetes-configs
+        run: |
+          kubectl apply -f deployment.yaml --validate=false
+          kubectl apply -f service.yaml --validate=false
