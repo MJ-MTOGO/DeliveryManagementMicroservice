@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: delivery-management-service
-          image: gcr.io/mtogo-439509/delivery-management-service:latest # Update with your image
+          image: gcr.io/mtogov1/delivery-management-service:latest # Update with your image
           ports:
             - containerPort: 8080 # The container's exposed port
           env:
