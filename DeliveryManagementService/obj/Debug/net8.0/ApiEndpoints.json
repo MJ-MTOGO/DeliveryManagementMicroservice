@@ -1,5 +1,21 @@
 [
   {
+    "ContainingType": "DeliveryManagementService.Controllers.OrderDeliveringController",
+    "Method": "UpdateDeliveringTime",
+    "RelativePath": "api/OrderDelivering/{id}/update-delivering-time",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Guid",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "DeliveryManagementService.Controllers.WeatherForecastController",
     "Method": "Get",
     "RelativePath": "WeatherForecast",

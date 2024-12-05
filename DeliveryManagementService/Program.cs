@@ -32,15 +32,8 @@ namespace DeliveryManagementService
         private static void ConfigureServices(WebApplicationBuilder builder)
         {
             // Configure DbContext
-            //builder.Services.AddDbContext<DeliveringDbContext>(options =>
-            //    options.UseSqlServer(
-            //        builder.Configuration.GetConnectionString("DefaultConnection"),
-            //        sqlOptions => sqlOptions.EnableRetryOnFailure()
-            //    )
-            //);
-
-           builder.Services.AddDbContext<DeliveringDbContext>(options =>
-              options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            builder.Services.AddDbContext<DeliveringDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Register IMessageBus with GooglePubSubMessageBus
             builder.Services.AddSingleton<IMessageBus, GooglePubSubMessageBus>(sp =>
@@ -48,7 +41,7 @@ namespace DeliveryManagementService
 
             // Register IMessagePublisher with MessagePublisher
             builder.Services.AddSingleton<IMessagePublisher, MessagePublisher>();
-            
+
             // Register WebSocketManager
             builder.Services.AddSingleton<DeliveringWebSocketManager>();
 
@@ -56,8 +49,8 @@ namespace DeliveryManagementService
             builder.Services.AddScoped<IOrderDeliveringRepository, OrderDeliveringRepository>();
             builder.Services.AddScoped<IOrderProcessingService, OrderProcessingService>();
 
-            // Add Subscription Handlers
-           builder.Services.AddSingleton<OrderCreatedSubscriptionHandler>();
+            // Add Subscription Handlers as Singletons, resolving scoped dependencies dynamically
+            builder.Services.AddSingleton<OrderCreatedSubscriptionHandler>();
 
             // Register Controllers
             builder.Services.AddControllers();
@@ -82,6 +75,7 @@ namespace DeliveryManagementService
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
+
             // Add WebSocket Middleware
             app.UseWebSockets();
             app.Use(async (context, next) =>

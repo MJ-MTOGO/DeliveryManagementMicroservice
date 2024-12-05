@@ -2,35 +2,33 @@
 
 namespace DeliveryManagementService.Infrastructure.Subscribers
 {
+
+
     public class OrderCreatedSubscriptionHandler
     {
         private readonly IMessageBus _messageBus;
-        private readonly IOrderProcessingService _orderProcessingService;
+        private readonly IServiceProvider _serviceProvider;
 
-        public OrderCreatedSubscriptionHandler(IMessageBus messageBus, IOrderProcessingService orderProcessingService)
+        public OrderCreatedSubscriptionHandler(IMessageBus messageBus, IServiceProvider serviceProvider)
         {
             _messageBus = messageBus;
-            _orderProcessingService = orderProcessingService;
+            _serviceProvider = serviceProvider;
         }
 
         public async Task StartAsync()
         {
-            // Use the IMessageBus to subscribe to the "order-created-sub"
-            await _messageBus.SubscribeAsync("order-created-sub", async messageData =>
+            await _messageBus.SubscribeAsync("order-created-sub", async message =>
             {
-                try
+                using (var scope = _serviceProvider.CreateScope())
                 {
-                    // Delegate the message processing to the application service
-                    await _orderProcessingService.ProcessOrderCreatedMessageAsync(messageData);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error processing message: {ex.Message}");
+                    var orderProcessingService = scope.ServiceProvider.GetRequiredService<IOrderProcessingService>();
+
+                                   
+                    await orderProcessingService.ProcessOrderCreatedMessageAsync(message);
                 }
             });
-
-
-
         }
     }
+
+
 }
