@@ -2,8 +2,8 @@
   {
     "ContainingType": "DeliveryManagementService.Controllers.OrderDeliveringController",
     "Method": "UpdateDeliveringTime",
-    "RelativePath": "api/OrderDelivering/{id}/update-delivering-time",
-    "HttpMethod": "PUT",
+    "RelativePath": "api/OrderDelivering/{id}",
+    "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [

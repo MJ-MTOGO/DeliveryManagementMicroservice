@@ -20,20 +20,23 @@ namespace DeliveryManagementService.Application.Services
             _webSocketManager = webSocketManager;
         }
 
-        public async Task ProcessOrderCreatedMessageAsync(string messageData)
+        public async Task ProcessOrderCreatedMessageAsync(OrderCreatedMessage messageData)
         {
             // Deserialize the message
-            var message = JsonConvert.DeserializeObject<OrderCreatedMessage>(messageData);
-
-            if (message == null)
+          
+            Console.WriteLine("******************************************************************************************************************");
+            Console.WriteLine(messageData);
+            Console.WriteLine("******************************************************************************************************************");
+            if (messageData == null)
             {
                 throw new Exception("Failed to deserialize message");
             }
 
             // Make an API request to get restaurant information
-            var restaurantResponse = await _httpClient.GetAsync($"http://localhost:5194/api/Restaurant/{message.RestaurantId}");
+            var restaurantResponse = await _httpClient.GetAsync($"http://localhost:5139/api/Restaurant/{messageData.RestaurantId}");
             restaurantResponse.EnsureSuccessStatusCode();
-
+      
+            Console.WriteLine(messageData.RestaurantId);
             var restaurantData = await restaurantResponse.Content.ReadAsStringAsync();
             var restaurantDto = JsonConvert.DeserializeObject<RestaurantDto>(restaurantData);
 
@@ -51,14 +54,14 @@ namespace DeliveryManagementService.Application.Services
 
             // Create OrderDelivering aggregate
             var deliveryAddress = new Adresse(
-                message.DeliveryAddress.Street,
-                message.DeliveryAddress.PostalCode,
-                message.DeliveryAddress.City
+                messageData.DeliveryAddress.Street,
+                messageData.DeliveryAddress.PostalCode,
+                messageData.DeliveryAddress.City
             );
             var agentId = Guid.Parse("1AA2AA99-A5A3-4043-80C3-1CE7A64C3132");
             var orderDelivering = new OrderDelivering(
-                message.OrderId,
-                message.RestaurantId,
+                messageData.OrderId,
+                messageData.RestaurantId,
                 agentId,
                 deliveryAddress,
                 pickupAddress
@@ -82,6 +85,41 @@ namespace DeliveryManagementService.Application.Services
 
             // Save to the database
             await _repository.SaveOrderDeliveringAsync(orderDelivering);
+        }
+
+     
+         public async Task ProcessOrderUpdatedMessageAsync(ReadyToPickupDto messageData)
+        {
+            // Deserialize the message
+
+            Console.WriteLine("******************************************************************************************************************");
+            Console.WriteLine(messageData);
+            Console.WriteLine("******************************************************************************************************************");
+            if (messageData == null)
+            {
+                throw new Exception("Failed to deserialize message");
+            }
+        
+
+            // get orderdelivering from database and then send it again with readytopickup
+            var orderDelivering = await _repository.FindByOrderIdAsync(messageData.OrderId);
+
+            // Create DeliveringInfoDto
+            var deliveringInfoDto = new DeliveringInfoDto
+            {
+                OrderStatus = "ReadyToPickup",
+                AgentId = orderDelivering.AgentId,
+                OrderId = orderDelivering.OrderId,
+                DeliveryAdresse = orderDelivering.DeliveryAdresse,
+                Id = orderDelivering.Id,
+                PickupAdresse = orderDelivering.PickupAdresse,
+                RestaurantId = orderDelivering.RestaurantId
+            };
+
+            // Send the DTO to the agent via WebSocket
+            var messageJson = JsonConvert.SerializeObject(deliveringInfoDto);
+            await _webSocketManager.BroadcastMessageAsync(messageJson);
+
         }
     }
 }

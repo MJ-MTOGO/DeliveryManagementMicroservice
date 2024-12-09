@@ -25,14 +25,13 @@ namespace DeliveryManagementService.Infrastructure.Adapters
                    ?? throw new InvalidOperationException($"Order with ID {id} not found");
         }
 
-        public async Task UpdateDeliveringDatetimeAsync(Guid id, DateTime deliveringDatetime)
+          public async Task UpdateDeliveringDatetimeAsync(Guid id, DateTime deliveringDatetime)
         {
-            var orderDelivering = await FindByIdAsync(id);
+            var orderDelivering = await FindByOrderIdAsync(id);
             orderDelivering.UpdateDeliveringDatetime(deliveringDatetime);
             _dbContext.OrderDeliverings.Update(orderDelivering);
             await _dbContext.SaveChangesAsync();
         }
-
         public async Task<OrderDelivering> FindOrderDeliveringByOrderIdAsync(Guid id)
         {
             return await _dbContext.OrderDeliverings.FirstOrDefaultAsync(d => d.OrderId == id)
@@ -43,6 +42,12 @@ namespace DeliveryManagementService.Infrastructure.Adapters
         {
             _dbContext.OrderDeliverings.Update(orderDelivering);
             await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<OrderDelivering> FindByOrderIdAsync(Guid id)
+        {
+            return await _dbContext.OrderDeliverings.FirstOrDefaultAsync(d => d.OrderId == id)
+                 ?? throw new InvalidOperationException($"Order with ID {id} not found");
         }
     }
 }

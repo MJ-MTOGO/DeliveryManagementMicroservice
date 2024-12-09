@@ -1,5 +1,6 @@
 ﻿using DeliveryManagementService.Application.DTOs;
 using DeliveryManagementService.Application.Ports;
+using DeliveryManagementService.Domain.Entities;
 
 namespace DeliveryManagementService.Application.Services
 {
@@ -14,14 +15,17 @@ namespace DeliveryManagementService.Application.Services
             _messageBus = messageBus;
         }
 
-        public async Task UpdateDeliveringTimeAsync(Guid id, DateTime deliveringDatetime)
-        {
-            // Update delivery time
-            var orderDelivering = await _repository.FindByIdAsync(id);
-            orderDelivering.UpdateDeliveringDatetime(deliveringDatetime);
-            await _repository.UpdateOrderDeliveringAsync(orderDelivering);
 
-            // Publish the "order-delivered" message
+        public async Task UpdateDeliveringTimeAsync(Guid id)
+        {
+            // Get the current time
+            DateTime deliveringDatetime = DateTime.UtcNow;
+
+            // Update delivery time
+            await _repository.UpdateDeliveringDatetimeAsync(id, deliveringDatetime);
+            var orderDelivering = await _repository.FindByOrderIdAsync(id);
+            // You can include the message publishing logic here if needed
+            //  Publish the "order-delivered" message
             var orderDeliveredDto = new OrderDeliveredDto
             {
                 Id = orderDelivering.Id,
@@ -30,8 +34,8 @@ namespace DeliveryManagementService.Application.Services
                 DeliveringDatetime = orderDelivering.DeliveringDatetime.Value,
                 DeliveringAddress = $"{orderDelivering.DeliveryAdresse.Street}, {orderDelivering.DeliveryAdresse.City}, {orderDelivering.DeliveryAdresse.PostalCode}"
             };
-
             await _messageBus.PublishAsync("order-delivered", orderDeliveredDto);
         }
+
     }
 }

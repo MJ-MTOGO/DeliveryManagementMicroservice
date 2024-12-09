@@ -14,18 +14,19 @@ namespace DeliveryManagementService.Controllers
             _service = service;
         }
 
-        [HttpPut("{id}/update-delivering-time")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> UpdateDeliveringTime(Guid id)
         {
             try
             {
-                await _service.UpdateDeliveringTimeAsync(id, DateTime.UtcNow);
-                return NoContent();
+                await _service.UpdateDeliveringTimeAsync(id);
+                return Ok(id);
             }
             catch (Exception ex)
             {
-                return BadRequest(new { Message = ex.Message });
+                return StatusCode(500, $"An error occurred while updating the delivering time: {ex.Message}");
             }
         }
+
     }
 }

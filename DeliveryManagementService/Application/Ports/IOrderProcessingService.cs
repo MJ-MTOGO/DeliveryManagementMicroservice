@@ -1,7 +1,10 @@
-﻿namespace DeliveryManagementService.Application.Ports
+﻿using DeliveryManagementService.Application.DTOs;
+
+namespace DeliveryManagementService.Application.Ports
 {
     public interface IOrderProcessingService
     {
-        Task ProcessOrderCreatedMessageAsync(string messageData);
+        Task ProcessOrderCreatedMessageAsync(OrderCreatedMessage messageData);
+        Task ProcessOrderUpdatedMessageAsync(ReadyToPickupDto messageData);
     }
 }

@@ -23,26 +23,20 @@ namespace DeliveryManagementService.Application.Services
         {
             // Deserialize the message
             var jsonObject = JObject.Parse(messageData);
-            var readyToPickup = jsonObject["readyToPickup"]?.ToObject<ReadyToPickup>();
+            var readyToPickup = jsonObject["readyToPickup"]?.ToObject<ReadyToPickupDto>();
 
             if (readyToPickup == null)
             {
                 throw new Exception("Failed to deserialize message");
             }
 
-            // Fetch order details
-            var orderResponse = await _httpClient.GetAsync($"http://localhost:5194/api/orders/{readyToPickup.OrderId}");
-            orderResponse.EnsureSuccessStatusCode();
-
-            var orderData = await orderResponse.Content.ReadAsStringAsync();
-            var orderDto = JsonConvert.DeserializeObject<OrderDto>(orderData);
-
-            var deliveringOrder = await _repository.FindOrderDeliveringByOrderIdAsync(orderDto.OrderId);
+          
+             var deliveringOrder = await _repository.FindOrderDeliveringByOrderIdAsync(readyToPickup.OrderId);
 
             // Create DeliveringInfoDto
             var deliveringInfoDto = new DeliveringInfoDto
             {
-                OrderStatus = orderDto.OrderStatus,
+                OrderStatus = "ReadyToPickup",
                 AgentId = deliveringOrder.AgentId,
                 OrderId = deliveringOrder.OrderId,
                 DeliveryAdresse = deliveringOrder.DeliveryAdresse,

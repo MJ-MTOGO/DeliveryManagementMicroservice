@@ -1,34 +1,50 @@
-﻿using DeliveryManagementService.Application.Ports;
+﻿using DeliveryManagementService.Application.DTOs;
+using Google.Cloud.PubSub.V1;
+using Newtonsoft.Json;
 
-namespace DeliveryManagementService.Infrastructure.Subscribers
+public class OrderCreatedSubscriptionHandler
 {
+    private readonly string _subscriptionId;
+    private readonly string _projectId;
 
-
-    public class OrderCreatedSubscriptionHandler
+    public OrderCreatedSubscriptionHandler(string projectId, string subscriptionId)
     {
-        private readonly IMessageBus _messageBus;
-        private readonly IServiceProvider _serviceProvider;
-
-        public OrderCreatedSubscriptionHandler(IMessageBus messageBus, IServiceProvider serviceProvider)
-        {
-            _messageBus = messageBus;
-            _serviceProvider = serviceProvider;
-        }
-
-        public async Task StartAsync()
-        {
-            await _messageBus.SubscribeAsync("order-created-sub", async message =>
-            {
-                using (var scope = _serviceProvider.CreateScope())
-                {
-                    var orderProcessingService = scope.ServiceProvider.GetRequiredService<IOrderProcessingService>();
-
-                                   
-                    await orderProcessingService.ProcessOrderCreatedMessageAsync(message);
-                }
-            });
-        }
+        _projectId = projectId;
+        _subscriptionId = subscriptionId;
     }
 
+    public async Task StartListeningAsync()
+    {
+        var subscriber = await SubscriberClient.CreateAsync(
+            SubscriptionName.FromProjectSubscription(_projectId, _subscriptionId));
 
+        Console.WriteLine("************************************************* StartListeningAsync");
+
+        await subscriber.StartAsync(async (PubsubMessage message, CancellationToken cancellationToken) =>
+        {
+            try
+            {
+                var pubSubData = JsonConvert.DeserializeObject<OrderCreatedMessage>(message.Data.ToStringUtf8());
+                if (pubSubData?.OrderId == null)
+                {
+                    Console.WriteLine("Invalid Pub/Sub message: OrderId is null.");
+                    return SubscriberClient.Reply.Ack;
+                }
+                Console.WriteLine("Step 1. Order ID: " + pubSubData.OrderId);
+
+                return SubscriberClient.Reply.Ack;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error processing message: {ex.Message}");
+                return SubscriberClient.Reply.Nack;
+            }
+        });
+    }
 }
+
+
+
+//var orderProcessingService = scope.ServiceProvider.GetRequiredService<IOrderProcessingService>();
+//Console.WriteLine($"Processing message: {message}");
+//await orderProcessingService.ProcessOrderCreatedMessageAsync(message);
